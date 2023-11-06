@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from datetime import date
+from django.http import Http404
 
 # Create your views here.
 all_posts = [
@@ -78,8 +79,13 @@ def starting_page(request):
 
 
 def posts(request):
-    return render(request, "blog/all-posts.html")
+    return render(request, "blog/all-posts.html", {
+        "all_posts":all_posts
+    })
 
 
 def posts_details(request, slug):
-    return render(request, "blog/post-detail.html")
+    identified_post = next(post for post in all_posts if post['slug'] == slug)
+    return render(request, "blog/post-detail.html", {
+        "post":identified_post
+    })
