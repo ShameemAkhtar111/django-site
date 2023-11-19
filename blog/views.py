@@ -69,6 +69,7 @@ all_posts = [
     }
 ]
 
+
 def starting_page(request):
     # all_posts.sort(key=lambda x : x["date"])
     sorted_posts = sorted(all_posts, key=lambda x: x["date"])
