@@ -1,8 +1,23 @@
 from django.shortcuts import render,get_object_or_404
 from .models import Post
+from django.views.generic.base import TemplateView
+from django.views.generic import ListView, DetailView
+from .forms import CommentForm
 
-# Create your views here.
 
+class StartingView(ListView):
+    template_name = "blog/index.html"
+    model = Post
+    ordering = ["-date"]
+    context_object_name = "posts"
+
+    def get_queryset(self):
+        base_query = super().get_queryset()
+        data = base_query[:3]
+        return data
+
+
+# Used the above class based view(StartingView) instead of this method
 def starting_page(request):
     latest_posts = Post.objects.all().order_by("-date")[:3]
     ## all_posts.sort(key=lambda x : x["date"])
@@ -13,6 +28,14 @@ def starting_page(request):
     })
 
 
+class PostView(ListView):
+    template_name = "blog/all-posts.html"
+    model = Post
+    context_object_name = "all_posts"
+    ordering = ["-date"]
+
+
+# Used the above class based view (PostView) instead of this method based view
 def posts(request):
     all_posts = Post.objects.all().order_by("-date")
     return render(request, "blog/all-posts.html", {
@@ -20,6 +43,18 @@ def posts(request):
     })
 
 
+class PostDetailsView(DetailView):
+    template_name = "blog/post-detail.html"
+    model = Post
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["post_tags"] = self.object.tags.all()
+        context["comment_form"] = CommentForm()
+        return context
+
+
+# Used the above class based view (PostDetailsView) instead of this method based view
 def posts_details(request, slug):
     # identified_post = next(post for post in all_posts if post['slug'] == slug)
     # identified_post = Post.objects.get(slug=slug)     #same as the below line
